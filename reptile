@@ -1,0 +1,26 @@
+import requests
+import pandas as pd
+
+# 获取前10代币的历史数据
+url = 'https://web-api.coinmarketcap.com/v1/cryptocurrency/ohlcv/historical'
+params = {
+    'id': '1,1027,1839,2010,74,52,1831,6636,2,1837',
+    'convert': 'USD',
+    'time_start': '2019-04-01T00:00:00Z',
+    'time_end': '2021-04-01T00:00:00Z'
+}
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+response = requests.get(url=url, params=params, headers=headers)
+data = response.json()
+
+# 整理数据
+df_list = []
+for d in data['data']:
+    df = pd.DataFrame(d['quotes'])
+    df['symbol'] = d['symbol']
+    df_list.append(df)
+df = pd.concat(df_list)
+
+# 保存数据到excel文件
+df.to_excel('coinmarketcap_top10.xlsx', index=False)
